@@ -158,10 +158,16 @@ async function _W(hash,fp,t){
     for(var k=0;k<g.obj.cards.length;k++){if(g.obj.cards[k].hash===hash){card=g.obj.cards[k];break;}}
     if(!card)return {ok:false,m:'云端卡密状态已变化，请重试'};
     var now=t+g.off;
-    var rep=(card.devices&&card.devices.indexOf(fp)>=0)&&card.last_used_at&&(now-card.last_used_at)<60000;
+    /* 复查：写回前再次校验状态，防止并发超用 */
+    if(card.status!=='active')return {ok:false,m:'卡密已被禁用'};
+    if(card.expires_at&&now>card.expires_at)return {ok:false,m:'卡密已过期'};
+    if(card.used_count>=card.max_uses)return {ok:false,m:'该卡密使用次数已用完'};
+    /* 设备防重放：同一设备 60 秒内重复验证不重复计数 */
+    var devs=card.devices||[];card.devices=devs;
+    var rep=devs.indexOf(fp)>=0&&card.last_used_at&&(now-card.last_used_at)<60000;
     if(!rep){
       card.used_count=(card.used_count||0)+1;
-      if(card.bind_device&&card.devices&&card.devices.indexOf(fp)<0)card.devices.push(fp);
+      if(devs.indexOf(fp)<0)devs.push(fp);
     }
     card.last_used_at=now;
     var enc=await _Seal(g.obj,__CFG.s);
