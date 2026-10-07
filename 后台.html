@@ -248,7 +248,7 @@ async function ghGet(){
   const c=cfg();
   const url=apiBase(c)+'?ref='+encodeURIComponent(c.branch);
   let r;
-  try{r=await fetch(url,{headers:{Authorization:'Bearer '+c.token,Accept:'application/vnd.github+json'}});}
+  try{r=await fetch(url,{headers:{Authorization:'Bearer '+c.token,Accept:'application/vnd.github+json'},cache:'no-store'});}
   catch(e){return {ok:false,msg:'网络错误：'+e.message};}
   if(r.status===404)return {ok:false,notFound:true};
   if(!r.ok)return {ok:false,status:r.status,msg:'拉取失败('+r.status+')：'+(await r.text()).slice(0,160)};
@@ -263,7 +263,7 @@ async function ghPut(encStr,sha){
   const body={message:'update card vault @'+new Date().toISOString(),content:b64f(new TextEncoder().encode(encStr)),branch:c.branch};
   if(sha)body.sha=sha;
   let r;
-  try{r=await fetch(apiBase(c),{method:'PUT',headers:{Authorization:'Bearer '+c.token,Accept:'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify(body)});}
+  try{r=await fetch(apiBase(c),{method:'PUT',cache:'no-store',headers:{Authorization:'Bearer '+c.token,Accept:'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify(body)});}
   catch(e){return {ok:false,msg:'网络错误：'+e.message};}
   if(r.ok)return {ok:true};
   return {ok:false,status:r.status,msg:'上传失败('+r.status+')：'+(await r.text()).slice(0,160)};

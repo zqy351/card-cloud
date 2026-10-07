@@ -136,7 +136,7 @@ async function _G(){
   if(__CFG.m===1&&__CFG.t){url=_Api()+'?ref='+encodeURIComponent(__CFG.b);headers={Authorization:'Bearer '+__CFG.t,Accept:'application/vnd.github+json'};via='api';}
   else{url=_Raw();}
   var r;
-  try{r=await fetch(url,{headers:headers});}catch(e){throw new Error('无法连接云端，请检查网络');}
+  try{r=await fetch(url,{headers:headers,cache:'no-store'});}catch(e){throw new Error('无法连接云端，请检查网络');}
   if(!r.ok)throw new Error('云端数据不可达 ('+r.status+')');
   var off=0;
   try{var _dt=new Date(r.headers.get('date')).getTime();if(!isNaN(_dt)&&_dt>1577836800000&&_dt<2082787200000)off=_dt-Date.now();}catch(e){}
@@ -148,7 +148,7 @@ async function _G(){
 async function _P(enc,sha){
   var body={message:'card use @'+Date.now(),content:_Z(new TextEncoder().encode(enc)),branch:__CFG.b};
   if(sha)body.sha=sha;
-  var r=await fetch(_Api(),{method:'PUT',headers:{Authorization:'Bearer '+__CFG.t,Accept:'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify(body)});
+  var r=await fetch(_Api(),{method:'PUT',cache:'no-store',headers:{Authorization:'Bearer '+__CFG.t,Accept:'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify(body)});
   return r;
 }
 async function _W(hash,fp,t){
@@ -173,7 +173,7 @@ async function _W(hash,fp,t){
     var enc=await _Seal(g.obj,__CFG.s);
     var r=await _P(enc,g.sha);
     if(r.ok)return {ok:true};
-    if(r.status===409)continue;
+    if(r.status===409){await new Promise(function(z){setTimeout(z,600);});continue;}
     return {ok:false,m:'云端写入失败('+r.status+')'};
   }
   return {ok:false,m:'云端繁忙，请稍后重试'};
