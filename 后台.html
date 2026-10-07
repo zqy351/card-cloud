@@ -175,6 +175,11 @@ function loadCfg(){
   if(c.owner)el('cfg_owner').value=c.owner;if(c.repo)el('cfg_repo').value=c.repo;
   if(c.branch)el('cfg_branch').value=c.branch;if(c.path)el('cfg_path').value=c.path;
   if(c.token)el('cfg_token').value=c.token;
+  /* 首次打开：内置默认部署（owner/repo/分支/路径），Token 需自行粘贴一次 */
+  if(!c.owner&&!el('cfg_owner').value)el('cfg_owner').value='zqy351';
+  if(!c.repo&&!el('cfg_repo').value)el('cfg_repo').value='card-cloud';
+  if(!el('cfg_branch').value)el('cfg_branch').value='main';
+  if(!el('cfg_path').value)el('cfg_path').value='cards.enc';
 }
 function cfgOk(){
   const c=cfg();
