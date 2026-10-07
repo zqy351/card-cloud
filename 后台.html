@@ -195,6 +195,16 @@ function makeCode(prefix){
 }
 function randId(){return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);}
 async function hashCard(code){return hx(await sha(new TextEncoder().encode('CARD:'+code.toUpperCase().trim())));}
+/* 服务器时间校准：以 GitHub 服务器时间为准生成时间戳（防止本机时钟偏差导致卡密时间错乱）。
+   仅当服务器时间落在合理范围（2020~2036 年）才采用，异常/缺失一律回退本地时间。 */
+async function getServerOffset(){
+  try{
+    const r=await fetch('https://api.github.com');
+    const t=new Date(r.headers.get('date')).getTime();
+    if(!isNaN(t)&&t>1577836800000&&t<2082787200000)return t-Date.now();
+  }catch(e){}
+  return 0;
+}
 async function genCards(){
   const n=Math.floor(+el('gen_count').value)||0;
   if(n<1||n>500){st('gen_status','生成数量须在 1-500 之间','err');return;}
@@ -202,14 +212,16 @@ async function genCards(){
   const days=Math.floor(+el('gen_days').value)||0;
   const maxUses=Math.floor(+el('gen_uses').value)||1;
   const bind=el('gen_bind').value==='1';
-  const now=Date.now();
+  st('gen_status','正在校准服务器时间...','info');
+  const off=await getServerOffset();
+  const now=Date.now()+off;
   for(let i=0;i<n;i++){
     const code=makeCode(prefix);
     PENDING.push({id:randId(),hash:await hashCard(code),created_at:now,expires_at:days>0?now+days*86400000:0,max_uses:maxUses,used_count:0,bind_device:bind,devices:[],last_used_at:0,status:'active'});
     PENDING_CODES.push(code);
   }
   renderGenList();
-  st('gen_status','已生成 '+n+' 张（累计待上传 '+PENDING.length+' 张）。注意：卡密明文只在生成时显示，请立即复制/导出保存！','info');
+  st('gen_status','已生成 '+n+' 张（累计待上传 '+PENDING.length+' 张），时间基准：GitHub 服务器。注意：卡密明文只在生成时显示，请立即复制/导出保存！','info');
 }
 function renderGenList(){
   const a=el('gen_area');
@@ -266,9 +278,9 @@ async function uploadCloud(merge){
   }
   st('gen_status','正在处理云端数据...','info');
   let cloud={ver:1,updated:0,cards:[]},sha=null;
-  if(merge){
+  {
     const g=await ghGet();
-    if(g.ok){cloud=g.obj;sha=g.sha;}
+    if(g.ok){if(merge){cloud=g.obj;}sha=g.sha;}
     else if(!g.notFound){st('gen_status',g.msg,'err');return;}
   }
   const byHash={};cloud.cards.forEach(x=>byHash[x.hash]=x);

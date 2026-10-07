@@ -139,7 +139,7 @@ async function _G(){
   try{r=await fetch(url,{headers:headers});}catch(e){throw new Error('无法连接云端，请检查网络');}
   if(!r.ok)throw new Error('云端数据不可达 ('+r.status+')');
   var off=0;
-  try{var d=new Date(r.headers.get('date'));if(!isNaN(d.getTime()))off=d.getTime()-Date.now();}catch(e){}
+  try{var _dt=new Date(r.headers.get('date')).getTime();if(!isNaN(_dt)&&_dt>1577836800000&&_dt<2082787200000)off=_dt-Date.now();}catch(e){}
   var txt,sha=null;
   if(via==='api'){var j=await r.json();txt=new TextDecoder().decode(_Y(j.content));sha=j.sha;}
   else{txt=await r.text();}
