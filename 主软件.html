@@ -113,7 +113,10 @@ function _HostOk(){
   var h=__CFG.h;
   if(!h||!h.length)return true;
   var host=location.hostname.toLowerCase();
-  /* 本地打开（file://）或 localhost 视为本机自用，放行 */
+  var proto=location.protocol||'';
+  /* 打包成 App 后（file:// 等非网页协议）视为本机自用，放行 */
+  if(proto!=='http:'&&proto!=='https:')return true;
+  /* 本地打开（file:// 网页）或 localhost 视为本机自用，放行 */
   if(!host||host==='localhost'||host==='127.0.0.1')return true;
   for(var i=0;i<h.length;i++){if(host===h[i]||host.endsWith('.'+h[i]))return true;}
   return false;
