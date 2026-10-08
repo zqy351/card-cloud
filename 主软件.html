@@ -113,6 +113,8 @@ function _HostOk(){
   var h=__CFG.h;
   if(!h||!h.length)return true;
   var host=location.hostname.toLowerCase();
+  /* 本地打开（file://）或 localhost 视为本机自用，放行 */
+  if(!host||host==='localhost'||host==='127.0.0.1')return true;
   for(var i=0;i<h.length;i++){if(host===h[i]||host.endsWith('.'+h[i]))return true;}
   return false;
 }
@@ -194,7 +196,7 @@ async function __V(){
   var code=(inp.value||'').trim().toUpperCase();
   if(!code){_st('请输入卡密','err');return;}
   if(!__CFG){_st('软件未部署配置，请联系管理员','err');return;}
-  if(!_HostOk()){_st('当前部署域名未授权，无法运行','err');return;}
+  if(!_HostOk()){_st('请通过官方链接访问本软件','err');return;}
   btn.disabled=true;inp.disabled=true;
   _st('正在验证...','info');
   try{
