@@ -45,30 +45,38 @@ button#btn:disabled{opacity:.55;cursor:not-allowed;}
 /* ============================================================
  * 部署配置（由后台「④ 生成主软件配置码」产出后替换这一行）
  * ============================================================ */
-const __APP_CFG__ = "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";
+const __APP_CFG__ = "dSo2fmFsJzRmVDZ+YWwnNKGA7YuV7oGU7oiB7pGd75W37KmC7YWU7qSU7igzfGdsbGFlLig+Ojg6KDNxeGdrLjYqVHxnZ24qVDV7e2lkayh+YWw0KGZUNn5hbCc0iojrs7vvnIngkJntjpjvqabvhrDsv6fghLTnh7TtsZ7us7vvnIngnoDuhbPvg7PsqYLthZTusZzuprfsiJThiq7tk7TnrILuvLPvkJntjpjvqabvuZzvqpXhvanhpJTukrTnrZfvs6nhoJzvt7XsKDM8ODowOjkrLjYqVG1rYXxnZipUNXt7aWRrKH5hbDQoZlQ2fmFsJzQoZlQ2fmFsJzQ2Zml4eyc0pp/ht6bgp4ftj5XtspTug4HumYzgvZzvNmZpeHs0NmonNKCc77e17Kej75Ks7TZqNDZ+YWwnNDM5PDowOjkrLjYqVGdrYSpUNXt7aWRrKH5hbDQ2KlRsemlrKlQ1e3tpZGsofmFsNCgoZlQ2fmFsJzQ2Zml4eyc0qYLthZTuhrDstYvgl4Ltlrntm7DskJntkrTsNmZpeHs0NmonNIKT74uV7pa57Zuw7DZqNDZ+YWwnNDMxMDAxKy42KlRna2EqVDV7e2lkayh+YWw0NipUbHppaypUNXt7aWRrKH5hbDQoKGZUNn5hbCc0NmZpeHsnNKCc75+T77qQ4aK07LqQ4YS054Si4amo7pm175yJ4I6n7amF7TZmaXh7NDZqJzSJp+CEouGgje2Bpu02ajQ2fmFsJzQzPzs/MDo5Ky42KlRna2EqVDV7e2lkayh+YWw0NipUbHppaypUNXt7aWRrKH5hbDQoKGZUNipUbGF6bypUNXt7aWRrKH5hbDQoZlQ2fmFsJzQoZlQ2fmFsJzSKiOu2nO6ItO2oteyysOyglO2rpe6Ck++Lle6Wue2bsOyEtOegnO+3teyquOCXjO42emo0iojrvanhs7DskJntkrTsrY3tk7fgl4LtmIDuur/tqLXshLTnj7fgkojhiafghKLhjqftqYXtNipUan17KlQ1e3tpZGsofmFsNCgoZlQ2OWAnNK2V7paT7Ya34Kqk7jY5YDQoKGZUNn5hbCc0qYLthZTukJntkrTsKFhBXjYqVG1vbGlqKlQ1e3tpZGsofmFsNCgoZlQ2KlRnem1gKlQ1e3tpZGsofmFsNChmVDYqVG1lZ2AqVDV7e2lkayh+YWw0ZlQ2bWRxfHsnNGZUdTNweD0mOTkybXJheyV8ZmduMzA/PD5qPSsyemdkZ2szem18Zm1rMmZvYWRpJXxwbXwzcHg4OzJ4Z3wlZmFvemllc3xnZ24mKG1lZ2AmZlR1MzEmOTJ8YG9hbWAlbWZhZDNweD0mOjkybXJheyV8ZmduMzBpPDFqMCsyemdkZ2szcHg+OShweDw5Mm9mYWxsaXgzcHg4OTJ7fWFsaXolem1semdqM25uazBuPCsobGFkZ3socHg7MnxubWQlem1semdqMzg8OTtpOisobGFkZ3socHg5MnptbHpnajM6Oj45ODkrMmxmfWd6b2NraWozOCg4KHB4OjoyZmFvemllc21rYXxnZiYobWVnYCZmVHUzPiY5Mnxgb2FtYCVtZmFkM3B4OjkybXJheyV8ZmduMzBpPDFqMCsyemdkZ2tzZml4eyhsemlrJihtZWdgJmZUdTM5bmltP20rMnpnZGdrM3B4PjJlZ3x8Z2olZmFvemllM3B4PDkybXJheyV8ZmduM2NrZ2RqMnFpZHh7YWxzaihsemlrJihtZWdgJmZUdTNweDAyZWd8fGdqJWZhb3ppZTNweDw6Mm1yYXslfGZnbnNna2EmKGx6aWsmKG1lZ2AmZlR1M3ptfGZtazJmb2FkaSV8cG18M3B4MDkyb2ZhbGxpeDNweDo5Mnt9YWxpeiV6bWx6Z2ozODw5O2k6KyhsYWRneyhweDkyem1semdqMz46aTk8OSsybGZ9Z3pvY2tpajNweDgwOSg5KDkycG1kbnNsemlrJihtZWdgJmZUdTN4aXp/Mnhpen8lcG1kbjNweDAoOChweD46MmZhb3ppZTNweDo5MnhpbzNwbWRuMnFpZHh7YWxzbGF6byYobWVnYCZmVHUzMSY5Mnxgb2FtYCVtZmFkM3B4PDkybXJheyV8ZmduMzBpPDFqMCsyemdkZ2tzan17JihtZWdgJmZUdTNubm4rMnpnZGdrM3B4ODkoOCg4MmZhb3ppZTNweD46Mm1yYXslfGZnbnM5YChtZWdgJmZUdTNweDA5MmVnfHxnaiVmYW96aWUzcHg5Mm9mYWtpeHslem18fG1kM3B4PSY6OTJtcmF7JXxmZ24zcHg+OShweDwyb2ZhbGxpeDNweDg6Mnt9YWxpeiV6bWx6Z2ozbm5uKzJ6Z2RnazMhbm5rPWo/KyRubmswbjwrJG9tbD07OSB8Zm1hbGl6byV6aW1mYWQybGZ9Z3pvY2tpajNja2dkaiVtZmFkZmEycWlkeHthbHNtb2xpaiYobWVnYCZmVHUzcHgwOihweDg6KHB4Pjsyb2ZhbGxpeDN6bXxmbWsyZm9hZGklfHBtfHNnem1gJihtZWdgJmZUdTNweDAyb2ZhbGxpeDNnfH1pKDgyZmFvemllM3B4ODo/MmB8bGF/JXBpZTNuYXpteyV7Zml7JC9hbUBpUSh8bmd7Z3prYUUvJC9LWyhvZmlOb2ZhWC8kYX0lZW18e3F7JC9BXShtZ29tWy8ycWRhZWluJXxmZ24zOW5pbT9tKzJ6Z2Rna3NtZWdgJmZUNm1kcXx7NCooMiptZWdgKigkOSgyKmUqKCQqQ08jJVZXOnApZ3s+eS0pb1h6V0s5bntPKigyKnsqKCRVKmdhJmp9YHxhbyY5PTtxeXIqUygyKmAqKCQqem5KeGlMZWRPW0k8TU0/PEtMMFg+TlBveUE8WHtqRVFFO3w8cXk5Yk4xYWNROV58XX9hRWBeMD9PTmJXfGcxX004TFB6Z1lGOEk6RVJFWko5OVd8aXhXan1gfGFvKigyKnwqKCQqZmFpZSooMipqKigkKmtmbSZ7bHppayooMip4KigkKmx9Z2RrJWx6aWsqKDIqeiooJCo5PTtxeXIqKDIqZyooJCqpgu2FlO6Qme2StOwqKDIqZipz";
 
 /* ================= 解码 / 加密基础层（勿改动） ================= */
 function _Z(u){var s='';for(var i=0;i<u.length;i++)s+=String.fromCharCode(u[i]);return btoa(s);}
 function _Y(s){var b=atob(s),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
 function _R(u){return Uint8Array.from(Array.from(u).reverse());}
+var _OBFS=[0x5A,0x3C,0x17,0xE2,0x9B];
 function _D(s){
   var u=_Y(s);
-  u=_R(u);for(var i=0;i<u.length;i++)u[i]^=0x17;
-  u=_R(u);for(var i=0;i<u.length;i++)u[i]^=0x3C;
-  u=_R(u);for(var i=0;i<u.length;i++)u[i]^=0x5A;
+  for(var k=_OBFS.length-1;k>=0;k--){u=_R(u);for(var i=0;i<u.length;i++)u[i]^=_OBFS[k];}
   return new TextDecoder('utf-8').decode(u);
 }
 function _E(s){
   var u=new TextEncoder().encode(s);
-  for(var i=0;i<u.length;i++)u[i]^=0x5A;u=_R(u);
-  for(var i=0;i<u.length;i++)u[i]^=0x3C;u=_R(u);
-  for(var i=0;i<u.length;i++)u[i]^=0x17;u=_R(u);
+  for(var k=0;k<_OBFS.length;k++){for(var i=0;i<u.length;i++)u[i]^=_OBFS[k];u=_R(u);}
   return _Z(u);
 }
 function _H(u){return Array.from(new Uint8Array(u)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');}
+async function _HC(code){
+  var h=await _S(new TextEncoder().encode('CARDV3:'+code.toUpperCase().trim()+':9x2kZ'));
+  for(var i=0;i<6;i++){h=await _S(new Uint8Array(h));}
+  return _H(h);
+}
 function _S(b){return crypto.subtle.digest('SHA-256',b);}
-async function _K(s){return crypto.subtle.importKey('raw',await _S(new TextEncoder().encode(s)),{name:'AES-GCM'},false,['encrypt','decrypt']);}
-async function _M(s){return crypto.subtle.importKey('raw',await _S(new TextEncoder().encode('hmac:'+s)),{name:'HMAC',hash:'SHA-256'},false,['sign','verify']);}
+async function _PBKDF(s,salt,use){
+  var km=await crypto.subtle.importKey('raw',new TextEncoder().encode('CARDVAULT::'+(s||'')),{name:'PBKDF2'},false,['deriveKey']);
+  var alg={name:'PBKDF2',salt:new TextEncoder().encode(salt),iterations:150000,hash:'SHA-256'};
+  if(use==='hmac')return crypto.subtle.deriveKey(alg,km,{name:'HMAC',hash:'SHA-256',length:256},false,['sign','verify']);
+  return crypto.subtle.deriveKey(alg,km,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+async function _K(s){return _PBKDF(s,'cardvault-aes-v3','aes');}
+async function _M(s){return _PBKDF(s,'cardvault-hmac-v3','hmac');}
 async function _Seal(o,seed){
   var key=await _K(seed),hk=await _M(seed);
   var iv=crypto.getRandomValues(new Uint8Array(12));
@@ -193,9 +201,12 @@ function _showHome(code){
   h.style.display='block';
   h.innerHTML=__CFG.home||'<h1>欢迎</h1><p>验证通过。</p>';
 }
+var _FL={n:0,t:0};
 async function __V(){
   var inp=document.getElementById('code');
   var btn=document.getElementById('btn');
+  var nowF=Date.now();
+  if(_FL.n>=5&&nowF-_FL.t<30000){_st('尝试过于频繁，请 '+Math.ceil((30000-(nowF-_FL.t))/1000)+' 秒后再试','err');return;}
   var code=(inp.value||'').trim().toUpperCase();
   if(!code){_st('请输入卡密','err');return;}
   if(!__CFG){_st('软件未部署配置，请联系管理员','err');return;}
@@ -204,7 +215,7 @@ async function __V(){
   _st('正在验证...','info');
   try{
     var g=await _G();
-    var hash=_H(await _S(new TextEncoder().encode('CARD:'+code)));
+    var hash=await _HC(code);
     var card=null;
     for(var k=0;k<g.obj.cards.length;k++){if(g.obj.cards[k].hash===hash){card=g.obj.cards[k];break;}}
     if(!card)throw new Error('卡密不存在或已被移除');
@@ -219,9 +230,11 @@ async function __V(){
       var w=await _W(hash,fp,t);
       if(!w.ok)throw new Error(w.m);
     }
+    _FL.n=0;
     _st('验证成功，正在进入...','ok');
     _showHome(code);
   }catch(e){
+    _FL.n++;_FL.t=Date.now();
     _st(e.message||'验证失败','err');
     btn.disabled=false;inp.disabled=false;
   }
