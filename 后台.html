@@ -110,7 +110,7 @@ textarea{min-height:70px;resize:vertical;font-family:ui-monospace,Consolas,monos
 <script>
 'use strict';
 /* ================= 常量（主软件必须一致） ================= */
-const SEED = 'D8k#9fQ$2xL@pR7';
+const SEED = 'Gsf1C_rPg!%q6so!x2_^-+GK';
 const DEFAULT_CFG = {owner:'zqy351',repo:'card-cloud',branch:'main',path:'cards.enc'};
 
 /* ================= 编码 / 加密工具 ================= */
@@ -120,8 +120,15 @@ function f64b(s){const b=atob(s),u=new Uint8Array(b.length);for(let i=0;i<b.leng
 function hx(u){return Array.from(new Uint8Array(u)).map(b=>b.toString(16).padStart(2,'0')).join('');}
 function rev(u){return Uint8Array.from(Array.from(u).reverse());}
 async function sha(b){return crypto.subtle.digest('SHA-256',b);}
-async function aKey(s){return crypto.subtle.importKey('raw',await sha(new TextEncoder().encode(s)),{name:'AES-GCM'},false,['encrypt','decrypt']);}
-async function hKey(s){return crypto.subtle.importKey('raw',await sha(new TextEncoder().encode('hmac:'+s)),{name:'HMAC',hash:'SHA-256'},false,['sign','verify']);}
+/* v3 加密升级：PBKDF2 高迭代派生（15 万次），抗暴力破解 */
+async function pbkdf(seed,salt,use){
+  const km=await crypto.subtle.importKey('raw',new TextEncoder().encode('CARDVAULT::'+(seed||SEED)),{name:'PBKDF2'},false,['deriveKey']);
+  const alg={name:'PBKDF2',salt:new TextEncoder().encode(salt),iterations:150000,hash:'SHA-256'};
+  if(use==='hmac')return crypto.subtle.deriveKey(alg,km,{name:'HMAC',hash:'SHA-256',length:256},false,['sign','verify']);
+  return crypto.subtle.deriveKey(alg,km,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+async function aKey(s){return pbkdf(s,'cardvault-aes-v3','aes');}
+async function hKey(s){return pbkdf(s,'cardvault-hmac-v3','hmac');}
 async function seal(obj,seed){
   seed=seed||SEED;
   const key=await aKey(seed),hk=await hKey(seed);
@@ -144,14 +151,21 @@ async function openSeal(str,seed){
   const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv},key,ct);
   return JSON.parse(new TextDecoder().decode(pt));
 }
+/* v3 混淆升级：5 层 XOR + 反转 + Base64 */
+const OBFS=[0x5A,0x3C,0x17,0xE2,0x9B];
 function encL(str){
   let u=new TextEncoder().encode(str);
-  for(let i=0;i<u.length;i++)u[i]^=0x5A;u=rev(u);
-  for(let i=0;i<u.length;i++)u[i]^=0x3C;u=rev(u);
-  for(let i=0;i<u.length;i++)u[i]^=0x17;u=rev(u);
+  for(let k=0;k<OBFS.length;k++){for(let i=0;i<u.length;i++)u[i]^=OBFS[k];u=rev(u);}
   return b64f(u);
 }
+function decL(s){
+  let u=f64b(s);
+  for(let k=OBFS.length-1;k>=0;k--){u=rev(u);for(let i=0;i<u.length;i++)u[i]^=OBFS[k];}
+  return new TextDecoder().decode(u);
+}
 
+/* v3 防御：HTML 转义，防注入/XSS */
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 /* ================= 配置（自动保存 / 自动填充） ================= */
 function cfg(){try{return JSON.parse(localStorage.getItem('card_admin_cfg')||'null')||{};}catch(e){return {};}}
 function saveCfg(extra){
@@ -184,7 +198,12 @@ function makeCode(prefix){
   return prefix?prefix+'-'+code:code;
 }
 function randId(){return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);}
-async function hashCard(code){return hx(await sha(new TextEncoder().encode('CARD:'+code.toUpperCase().trim())));}
+/* v3 卡密哈希：应用盐 + 7 轮迭代，抗彩虹表/撞库 */
+async function hashCard(code){
+  let h=await sha(new TextEncoder().encode('CARDV3:'+code.toUpperCase().trim()+':9x2kZ'));
+  for(let i=0;i<6;i++){h=await sha(new Uint8Array(h));}
+  return hx(h);
+}
 async function getServerOffset(){
   try{
     const r=await fetch('https://api.github.com');
@@ -209,6 +228,16 @@ async function ghGet(){
   try{obj=await openSeal(new TextDecoder().decode(f64b(j.content)));}
   catch(e){return {ok:false,msg:'云端数据解密失败：'+e.message};}
   return {ok:true,sha:j.sha,obj};
+}
+async function ghSha(){
+  const c=cfg();
+  const url=apiBase(c)+'?ref='+encodeURIComponent(c.branch);
+  try{
+    const r=await fetch(url,{headers:{Authorization:'Bearer '+c.token,Accept:'application/vnd.github+json'},cache:'no-store'});
+    if(!r.ok)return null;
+    const j=await r.json();
+    return j.sha||null;
+  }catch(e){return null;}
 }
 async function ghPut(encStr,sha){
   const c=cfg();
@@ -245,7 +274,14 @@ async function genAndUpload(){
   {
     const g=await ghGet();
     if(g.ok){cloud=g.obj;sha=g.sha;}
-    else if(!g.notFound){st('gen_status',g.msg,'err');return;}
+    else if(g.notFound){/* 首次上传，云端无库 */ }
+    else{
+      /* 云端存在但解密失败（密钥已更换/库被篡改）→ 识别为旧库，重建覆盖 */
+      sha=await ghSha();
+      if(!sha){st('gen_status',g.msg,'err');return;}
+      st('gen_status','检测到旧版/不可解密云端库，正在用新密钥重建（旧卡密将作废）...','info');
+      cloud={ver:3,updated:0,cards:[]};
+    }
   }
   const byHash={};cloud.cards.forEach(x=>byHash[x.hash]=x);
   let added=0;
@@ -291,7 +327,7 @@ async function loadCloud(){
     if(stt==='active')active++;else if(stt==='used')used++;else if(stt==='disabled')disabled++;else expired++;
     totalUses+=x.used_count;
     const lbl=stt==='active'?'可用':stt==='used'?'已用尽':stt==='disabled'?'已禁用':'已过期';
-    return '<tr><td>'+x.hash.slice(0,12)+'</td><td>'+fmtTime(x.created_at)+'</td><td>'+x.used_count+' / '+x.max_uses+'</td><td><span class="pill '+stt+'">'+lbl+'</span></td><td>'+(stt==='disabled'?'<button class="small" onclick="toggleCard(\''+x.hash+'\',\'active\')">启用</button>':'<button class="small danger" onclick="toggleCard(\''+x.hash+'\',\'disabled\')">禁用</button>')+'</td></tr>';
+    return '<tr><td>'+esc(x.hash.slice(0,12))+'</td><td>'+esc(fmtTime(x.created_at))+'</td><td>'+esc(x.used_count)+' / '+esc(x.max_uses)+'</td><td><span class="pill '+esc(stt)+'">'+esc(lbl)+'</span></td><td>'+(stt==='disabled'?'<button class="small" onclick="toggleCard(\''+x.hash+'\',\'active\')">启用</button>':'<button class="small danger" onclick="toggleCard(\''+x.hash+'\',\'disabled\')">禁用</button>')+'</td></tr>';
   }).join('');
   el('cloud_stats').innerHTML=
     '<div class="stat-card"><div class="n">'+cards.length+'</div><div class="l">卡密总数</div></div>'+
